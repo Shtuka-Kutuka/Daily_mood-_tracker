@@ -1,5 +1,5 @@
-package com.example.moodtracker.repository;
-import com.example.moodtracker.model.MoodEntry;
+package com.example.dailymoodtracker.repository;
+import com.example.dailymoodtracker.model.MoodEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
 import java.util.List;

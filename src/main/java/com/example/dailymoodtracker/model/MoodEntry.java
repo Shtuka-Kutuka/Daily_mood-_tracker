@@ -1,4 +1,4 @@
-package com.example.moodtracker.model;
+package com.example.dailymoodtracker.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;

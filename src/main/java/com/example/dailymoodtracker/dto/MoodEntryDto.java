@@ -1,4 +1,4 @@
-package com.example.moodtracker.dto;
+package com.example.dailymoodtracker.dto;
 import java.time.LocalDate;
 public class MoodEntryDto {
     private Long id;

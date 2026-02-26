@@ -1,6 +1,6 @@
-package com.example.moodtracker.mapper;
-import com.example.moodtracker.model.MoodEntry;
-import com.example.moodtracker.dto.MoodEntryDto;
+package com.example.dailymoodtracker.mapper;
+import com.example.dailymoodtracker.model.MoodEntry;
+import com.example.dailymoodtracker.dto.MoodEntryDto;
 import org.springframework.stereotype.Component;
 @Component
 public class MoodEntryMapper {

@@ -1,8 +1,8 @@
-package com.example.moodtracker.controller;
+package com.example.dailymoodtracker.controller;
 import org.springframework.web.bind.annotation.*;
-import com.example.moodtracker.dto.MoodEntryDto;
-import com.example.moodtracker.mapper.MoodEntryMapper;
-import com.example.moodtracker.service.MoodEntryService;
+import com.example.dailymoodtracker.dto.MoodEntryDto;
+import com.example.dailymoodtracker.mapper.MoodEntryMapper;
+import com.example.dailymoodtracker.service.MoodEntryService;
 import java.time.LocalDate;
 import java.util.List;
 @RestController

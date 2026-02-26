@@ -1,6 +1,6 @@
-package com.example.moodtracker.service;
-import com.example.moodtracker.repository.MoodEntryRepository;
-import com.example.moodtracker.model.MoodEntry;
+package com.example.dailymoodtracker.service;
+import com.example.dailymoodtracker.repository.MoodEntryRepository;
+import com.example.dailymoodtracker.model.MoodEntry;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
