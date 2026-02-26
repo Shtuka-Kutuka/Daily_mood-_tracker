@@ -1,10 +1,10 @@
-package com.example.moodtracker;
+package com.example.dailymoodtracker;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MoodtrackerApplicationTests {
+class DailyMoodtrackerApplicationTests {
 
     @Test
     void contextLoads() {

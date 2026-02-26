@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 public class MoodEntryMapper {
     public MoodEntryDto toDto(MoodEntry entry) {
         return new MoodEntryDto(
-                entry.getId(),
-                entry.getMood(),
-                entry.getDate()
+            entry.getId(),
+            entry.getMood(),
+            entry.getDate()
         );
     }
 }

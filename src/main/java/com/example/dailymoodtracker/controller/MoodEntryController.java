@@ -1,8 +1,8 @@
 package com.example.moodtracker.controller;
+import org.springframework.web.bind.annotation.*;
 import com.example.moodtracker.dto.MoodEntryDto;
 import com.example.moodtracker.mapper.MoodEntryMapper;
 import com.example.moodtracker.service.MoodEntryService;
-import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 @RestController
@@ -17,9 +17,9 @@ public class MoodEntryController {
     @GetMapping
     public List<MoodEntryDto> getByDate(@RequestParam LocalDate date) {
         return service.getByDate(date)
-                .stream()
-                .map(mapper::toDto)
-                .toList();
+            .stream()
+            .map(mapper::toDto)
+            .toList();
     }
     @GetMapping("/{id}")
     public MoodEntryDto getById(@PathVariable Long id) {
