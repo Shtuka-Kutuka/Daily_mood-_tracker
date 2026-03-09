@@ -1,6 +1,16 @@
 package com.example.dailymoodtracker.model;
 
-import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Column;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinTable;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -48,17 +58,28 @@ public class MoodEntry {
         this.id = id;
     }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    public MoodType getMoodType() { return moodType; }
-    public void setMoodType(MoodType moodType) { this.moodType = moodType; }
-    public String getNote() { return note; }
-    public void setNote(String note) { this.note = note; }
-    public LocalDate getEntryDate() { return entryDate; }
-    public void setEntryDate(LocalDate entryDate) { this.entryDate = entryDate; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public Set<Tag> getTags() { return tags; }
-    public void setTags(Set<Tag> tags) { this.tags = tags; }
+    public User getUser() {
+        return user; }
+    public void setUser(User user) {
+        this.user = user; }
+    public MoodType getMoodType() {
+        return moodType; }
+    public void setMoodType(MoodType moodType) {
+        this.moodType = moodType; }
+    public String getNote() {
+        return note; }
+    public void setNote(String note) {
+        this.note = note; }
+    public LocalDate getEntryDate() {
+        return entryDate; }
+    public void setEntryDate(LocalDate entryDate) {
+        this.entryDate = entryDate; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt; }
+    public Set<Tag> getTags() {
+        return tags; }
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags; }
 
     @Override
     public String toString() {
