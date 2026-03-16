@@ -1,5 +1,6 @@
 package com.example.dailymoodtracker.controller;
 
+import com.example.dailymoodtracker.dto.UserDto;
 import com.example.dailymoodtracker.exception.ResourceNotFoundException;
 import com.example.dailymoodtracker.model.User;
 import com.example.dailymoodtracker.repository.UserRepository;
@@ -26,8 +27,19 @@ public class UserController {
 
     // CREATE
     @PostMapping
-    public User create(@RequestBody User user) {
-        return repository.save(user);
+    public UserDto create(@RequestBody UserDto dto) {
+
+        User user = new User();
+        user.setUsername(dto.username());
+        user.setEmail(dto.email());
+
+        User saved = repository.save(user);
+
+        return new UserDto(
+            saved.getId(),
+            saved.getUsername(),
+            saved.getEmail()
+        );
     }
 
     // GET ALL
