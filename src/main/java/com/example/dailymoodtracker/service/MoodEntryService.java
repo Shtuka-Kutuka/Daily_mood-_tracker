@@ -6,8 +6,6 @@ import com.example.dailymoodtracker.model.MoodEntry;
 import com.example.dailymoodtracker.model.MoodType;
 import com.example.dailymoodtracker.repository.MoodEntryRepository;
 import com.example.dailymoodtracker.repository.MoodTypeRepository;
-import com.example.dailymoodtracker.repository.UserRepository;
-import com.example.dailymoodtracker.repository.GoalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
@@ -20,18 +18,13 @@ import java.util.Optional;
 public class MoodEntryService {
 
     private final MoodEntryRepository repository;
-    private final UserRepository userRepo;
-    private final GoalRepository goalRepo;
     private final MoodTypeRepository moodTypeRepo;
 
     public MoodEntryService(
         MoodEntryRepository repository,
-        UserRepository userRepo,
-        GoalRepository goalRepo,
         MoodTypeRepository moodTypeRepo) {
+
         this.repository = repository;
-        this.userRepo = userRepo;
-        this.goalRepo = goalRepo;
         this.moodTypeRepo = moodTypeRepo;
     }
 

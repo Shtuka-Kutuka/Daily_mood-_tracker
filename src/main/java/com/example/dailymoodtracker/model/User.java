@@ -34,7 +34,9 @@ public class User {
     public User() {
         // Required by JPA
     }
-
+    public void setId(Long id) {
+        this.id = id;
+    }
     public Long getId() {
         return id; }
     public String getUsername() {
