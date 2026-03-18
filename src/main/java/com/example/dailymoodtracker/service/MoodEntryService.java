@@ -2,6 +2,7 @@ package com.example.dailymoodtracker.service;
 
 import com.example.dailymoodtracker.dto.MoodEntryDto;
 import com.example.dailymoodtracker.exception.ResourceNotFoundException;
+import com.example.dailymoodtracker.exception.DataConflictException;
 import com.example.dailymoodtracker.model.MoodEntry;
 import com.example.dailymoodtracker.model.MoodType;
 import com.example.dailymoodtracker.repository.MoodEntryRepository;
@@ -38,7 +39,7 @@ public class MoodEntryService {
 
     public MoodEntry save(MoodEntry entry) {
         if (entry.getId() != null && repository.existsById(entry.getId())) {
-            throw new IllegalArgumentException("Mood with id " + entry.getId() + " already exists");
+            throw new DataConflictException("Mood with id " + entry.getId() + " already exists");
         }
 
         if (entry.getMoodType() != null) {
@@ -48,7 +49,13 @@ public class MoodEntryService {
             entry.setMoodType(mt);
         }
 
-        return repository.save(entry);
+        MoodEntry saved = repository.save(entry);
+
+        if (saved.getEntryDate() == null) {
+            throw new DataConflictException("Entry date cannot be null");
+        }
+
+        return saved;
     }
 
     @Transactional
@@ -57,11 +64,16 @@ public class MoodEntryService {
             .orElseThrow(() -> new ResourceNotFoundException("Mood not found: " + id));
 
         entry.setEntryDate(dto.date());
+        repository.save(entry);
 
         if (dto.mood() != null && !dto.mood().isEmpty()) {
             MoodType mt = moodTypeRepo.findByName(dto.mood())
                 .orElseGet(() -> moodTypeRepo.save(new MoodType(dto.mood(), null, null)));
             entry.setMoodType(mt);
+        }
+
+        if (dto.date() == null) {
+            throw new DataConflictException("Date cannot be null");
         }
 
         return repository.save(entry);
