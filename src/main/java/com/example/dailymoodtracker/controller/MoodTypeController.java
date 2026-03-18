@@ -1,8 +1,8 @@
 package com.example.dailymoodtracker.controller;
 
+import com.example.dailymoodtracker.dto.MoodTypeDto;
 import com.example.dailymoodtracker.model.MoodType;
-import com.example.dailymoodtracker.repository.MoodTypeRepository;
-import com.example.dailymoodtracker.exception.ResourceNotFoundException;
+import com.example.dailymoodtracker.service.MoodTypeService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,47 +18,38 @@ import java.util.List;
 @RequestMapping("/api/mood-types")
 public class MoodTypeController {
 
-    private static final String NOT_FOUND_MESSAGE = "MoodType not found: ";
+    private final MoodTypeService service;
 
-    private final MoodTypeRepository repository;
-
-    public MoodTypeController(MoodTypeRepository repository) {
-        this.repository = repository;
+    public MoodTypeController(MoodTypeService service) {
+        this.service = service;
     }
 
     @GetMapping
     public List<MoodType> getAll() {
-        return repository.findAll();
+        return service.getAll();
     }
 
     @GetMapping("/{id}")
     public MoodType getById(@PathVariable Long id) {
-        return repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
+        return service.getById(id);
     }
 
     @PostMapping
-    public MoodType create(@RequestBody MoodType moodType) {
-        return repository.save(moodType);
+    public MoodType create(@RequestBody MoodTypeDto dto) {
+        MoodType moodType = new MoodType();
+        moodType.setName(dto.name());
+        moodType.setEmoji(dto.emoji());
+        moodType.setDescription(dto.description());
+        return service.create(moodType);
     }
 
     @PutMapping("/{id}")
-    public MoodType update(@PathVariable Long id, @RequestBody MoodType updated) {
-        MoodType moodType = repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
-
-        moodType.setName(updated.getName());
-        moodType.setEmoji(updated.getEmoji());
-        moodType.setDescription(updated.getDescription());
-
-        return repository.save(moodType);
+    public MoodType update(@PathVariable Long id, @RequestBody MoodTypeDto dto) {
+        return service.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        MoodType moodType = repository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
-
-        repository.delete(moodType);
+        service.delete(id);
     }
 }
