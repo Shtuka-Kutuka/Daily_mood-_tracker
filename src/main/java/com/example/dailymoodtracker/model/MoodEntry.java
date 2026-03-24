@@ -1,6 +1,6 @@
 package com.example.dailymoodtracker.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
@@ -25,6 +25,7 @@ public class MoodEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore // 🔥 FIX
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -41,13 +42,13 @@ public class MoodEntry {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @JsonIgnore // 🔥 FIX (опционально но желательно)
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "mood_entry_tag",
         joinColumns = @JoinColumn(name = "mood_entry_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    @JsonBackReference
     private Set<Tag> tags;
 
     public MoodEntry() {

@@ -6,7 +6,6 @@ import com.example.dailymoodtracker.model.MoodEntry;
 import com.example.dailymoodtracker.service.MoodEntryService;
 import com.example.dailymoodtracker.exception.ResourceNotFoundException;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,10 +34,16 @@ public class MoodEntryController {
     }
 
     @GetMapping
+    public List<MoodEntryDto> getAll() {
+        return service.getAll()
+            .stream()
+            .map(mapper::toDto)
+            .toList();
+    }
+
+    @GetMapping("/by-date")
     public List<MoodEntryDto> getByDate(
-        @RequestParam("date")
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        LocalDate date) {
+        @RequestParam("date") LocalDate date) {
 
         return service.getByDate(date)
             .stream()

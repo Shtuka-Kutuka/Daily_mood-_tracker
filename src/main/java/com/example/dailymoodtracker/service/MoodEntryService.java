@@ -22,7 +22,6 @@ public class MoodEntryService {
 
     private final MoodEntryRepository repository;
     private final MoodTypeRepository moodTypeRepo;
-
     private final UserRepository userRepository;
 
     public MoodEntryService(
@@ -33,6 +32,10 @@ public class MoodEntryService {
         this.repository = repository;
         this.moodTypeRepo = moodTypeRepo;
         this.userRepository = userRepository;
+    }
+
+    public List<MoodEntry> getAll() {
+        return repository.findAll();
     }
 
     public List<MoodEntry> getByDate(LocalDate date) {

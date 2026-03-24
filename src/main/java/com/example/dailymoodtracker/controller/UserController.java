@@ -2,6 +2,7 @@ package com.example.dailymoodtracker.controller;
 
 import com.example.dailymoodtracker.dto.UserDto;
 import com.example.dailymoodtracker.exception.ResourceNotFoundException;
+import com.example.dailymoodtracker.mapper.UserMapper;
 import com.example.dailymoodtracker.model.User;
 import com.example.dailymoodtracker.repository.UserRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,35 +21,32 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository repository;
+    private final UserMapper mapper;
 
-    public UserController(UserRepository repository) {
+    public UserController(UserRepository repository, UserMapper mapper) {
         this.repository = repository;
+        this.mapper = mapper;
     }
+
     @PostMapping
     public UserDto create(@RequestBody UserDto dto) {
-
-        User user = new User();
-        user.setUsername(dto.username());
-        user.setEmail(dto.email());
-
+        User user = mapper.toEntity(dto);
         User saved = repository.save(user);
-
-        return new UserDto(
-            saved.getId(),
-            saved.getUsername(),
-            saved.getEmail()
-        );
+        return mapper.toDto(saved);
     }
+
     @GetMapping
-    public List<User> getAll() {
-        return repository.findAll();
+    public List<UserDto> getAll() {
+        return repository.findAllDto();
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id) {
-        return repository.findById(id)
+    public UserDto getById(@PathVariable Long id) {
+        User user = repository.findById(id)
             .orElseThrow(() ->
                 new ResourceNotFoundException("User not found: " + id));
+
+        return mapper.toDto(user);
     }
 
     @DeleteMapping("/{id}")
