@@ -1,6 +1,7 @@
 package com.example.dailymoodtracker.service;
 
 import com.example.dailymoodtracker.dto.GoalDto;
+import com.example.dailymoodtracker.dto.UserWithGoalsDto;
 import com.example.dailymoodtracker.exception.ResourceNotFoundException;
 import com.example.dailymoodtracker.exception.DataConflictException;
 import com.example.dailymoodtracker.model.Goal;
@@ -75,38 +76,39 @@ public class GoalService {
 
         goalRepository.delete(goal);
     }
-    private void createUserWithGoalsInternal(String username, String email) {
+
+    private void createUserWithGoalsInternal(UserWithGoalsDto dto) {
 
         User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
+        user.setUsername(dto.username());
+        user.setEmail(dto.email());
 
         user = userRepository.save(user);
 
-        Goal goal1 = new Goal();
-        goal1.setTitle("Goal 1");
-        goal1.setDescription("First goal");
-        goal1.setUser(user);
+        for (GoalDto goalDto : dto.goals()) {
 
-        goalRepository.save(goal1);
+            Goal goal = new Goal();
+            goal.setTitle(goalDto.title());
+            goal.setDescription(goalDto.description());
+            goal.setTargetDate(goalDto.targetDate());
+            goal.setAchieved(goalDto.achieved());
+            goal.setUser(user);
 
-        Goal goal2 = new Goal();
-        goal2.setTitle(null);
-        goal2.setDescription("Second goal");
-        goal2.setUser(user);
+            // имитируем ошибку
+            if (goal.getTitle() == null) {
+                throw new DataConflictException("Title cannot be null");
+            }
 
-        if (goal2.getTitle() == null) {
-            throw new DataConflictException("Title cannot be null");
+            goalRepository.save(goal);
         }
-
-        goalRepository.save(goal2);
     }
-    public void createUserWithGoalsNoTransaction() {
-        createUserWithGoalsInternal("test_user_no_tx", "no_tx@mail.com");
+
+    public void createUserWithGoalsNoTransaction(UserWithGoalsDto dto) {
+        createUserWithGoalsInternal(dto);
     }
 
     @Transactional
-    public void createUserWithGoalsWithTransaction() {
-        createUserWithGoalsInternal("test_user_tx", "tx@mail.com");
+    public void createUserWithGoalsWithTransaction(UserWithGoalsDto dto) {
+        createUserWithGoalsInternal(dto);
     }
 }

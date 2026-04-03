@@ -1,6 +1,7 @@
 package com.example.dailymoodtracker.controller;
 
 import com.example.dailymoodtracker.dto.GoalDto;
+import com.example.dailymoodtracker.dto.UserWithGoalsDto;
 import com.example.dailymoodtracker.mapper.GoalMapper;
 import com.example.dailymoodtracker.model.Goal;
 import com.example.dailymoodtracker.service.GoalService;
@@ -63,12 +64,12 @@ public class GoalController {
     }
 
     @PostMapping("/test/no-tx-related")
-    public void testNoTransactionRelated() {
-        service.createUserWithGoalsNoTransaction();
+    public void testNoTransactionRelated(@RequestBody UserWithGoalsDto dto) {
+        service.createUserWithGoalsNoTransaction(dto);
     }
 
     @PostMapping("/test/tx-related")
-    public void testTransactionRelated() {
-        service.createUserWithGoalsWithTransaction();
+    public void testTransactionRelated(@RequestBody UserWithGoalsDto dto) {
+        service.createUserWithGoalsWithTransaction(dto);
     }
 }
