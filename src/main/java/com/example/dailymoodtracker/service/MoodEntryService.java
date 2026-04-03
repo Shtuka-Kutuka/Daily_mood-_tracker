@@ -49,6 +49,10 @@ public class MoodEntryService {
         return repository.findByEntryDate(date, Pageable.unpaged()).getContent();
     }
 
+    public List<MoodEntry> getByUserId(Long userId) {
+        return repository.findByUserId(userId);
+    }
+
     public Optional<MoodEntry> getById(Long id) {
         return repository.findById(id);
     }

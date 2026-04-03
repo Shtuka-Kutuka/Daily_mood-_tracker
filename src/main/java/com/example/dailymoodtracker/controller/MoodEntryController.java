@@ -51,6 +51,14 @@ public class MoodEntryController {
             .toList();
     }
 
+    @GetMapping("/by-user/{userId}")
+    public List<MoodEntryDto> getByUserId(@PathVariable Long userId) {
+        return service.getByUserId(userId)
+            .stream()
+            .map(mapper::toDto)
+            .toList();
+    }
+
     @GetMapping("/{id}")
     public MoodEntryDto getById(@PathVariable Long id) {
 

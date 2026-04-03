@@ -28,4 +28,6 @@ public interface MoodEntryRepository extends JpaRepository<MoodEntry, Long> {
         "LEFT JOIN FETCH m.user " +
         "LEFT JOIN FETCH m.tags")
     List<MoodEntry> findAllWithRelations();
+
+    List<MoodEntry> findByUserId(Long userId);
 }
