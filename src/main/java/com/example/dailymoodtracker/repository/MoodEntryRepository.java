@@ -7,27 +7,41 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public interface MoodEntryRepository extends JpaRepository<MoodEntry, Long> {
 
-    @Query("SELECT m FROM MoodEntry m WHERE m.moodType.name = :typeName")
-    Page<MoodEntry> findByMoodTypeName(@Param("typeName") String typeName, Pageable pageable);
-
-    @Query(value = "SELECT me.* FROM mood_entry me " +
-        "JOIN mood_entry_tag met ON me.id = met.mood_entry_id " +
-        "JOIN tag t ON met.tag_id = t.id WHERE t.name = :tagName",
-        nativeQuery = true)
-    Page<MoodEntry> findByTagNameNative(@Param("tagName") String tagName, Pageable pageable);
-
-    Page<MoodEntry> findByEntryDate(LocalDate entryDate, Pageable pageable);
-
-    @Query("SELECT m FROM MoodEntry m " +
-        "LEFT JOIN FETCH m.moodType " +
-        "LEFT JOIN FETCH m.user " +
-        "LEFT JOIN FETCH m.tags")
-    List<MoodEntry> findAllWithRelations();
-
     List<MoodEntry> findByUserId(Long userId);
+
+    @Query("""
+        SELECT m FROM MoodEntry m
+        JOIN FETCH m.user u
+        JOIN FETCH m.moodType mt
+        LEFT JOIN FETCH m.tags t
+        WHERE u.id = :userId AND mt.name = :moodName
+        """)
+    Page<MoodEntry> findComplex(
+        @Param("userId") Long userId,
+        @Param("moodName") String moodName,
+        Pageable pageable
+    );
+
+    @Query(value = """
+        SELECT m.* FROM mood_entry m
+        JOIN users u ON m.user_id = u.id
+        JOIN mood_type mt ON m.mood_type_id = mt.id
+        WHERE u.id = :userId AND mt.name = :moodName
+        """,
+        countQuery = """
+        SELECT count(*) FROM mood_entry m
+        JOIN users u ON m.user_id = u.id
+        JOIN mood_type mt ON m.mood_type_id = mt.id
+        WHERE u.id = :userId AND mt.name = :moodName
+        """,
+        nativeQuery = true)
+    Page<MoodEntry> findComplexNative(
+        @Param("userId") Long userId,
+        @Param("moodName") String moodName,
+        Pageable pageable
+    );
 }

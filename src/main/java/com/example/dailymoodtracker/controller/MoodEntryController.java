@@ -2,23 +2,20 @@ package com.example.dailymoodtracker.controller;
 
 import com.example.dailymoodtracker.dto.MoodEntryDto;
 import com.example.dailymoodtracker.mapper.MoodEntryMapper;
-import com.example.dailymoodtracker.model.MoodEntry;
 import com.example.dailymoodtracker.service.MoodEntryService;
-import com.example.dailymoodtracker.exception.ResourceNotFoundException;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-import java.time.LocalDate;
+
 import java.util.List;
 
 @RestController
@@ -33,65 +30,51 @@ public class MoodEntryController {
         this.mapper = mapper;
     }
 
+    @PostMapping
+    public MoodEntryDto create(@RequestBody MoodEntryDto dto) {
+        return mapper.toDto(
+            service.save(mapper.toEntity(dto), dto)
+        );
+    }
+
     @GetMapping
     public List<MoodEntryDto> getAll() {
-        return service.getAll()
+        return service.findAll()
             .stream()
             .map(mapper::toDto)
             .toList();
     }
 
-    @GetMapping("/by-date")
-    public List<MoodEntryDto> getByDate(
-        @RequestParam("date") LocalDate date) {
-
-        return service.getByDate(date)
-            .stream()
-            .map(mapper::toDto)
-            .toList();
-    }
-
-    @GetMapping("/by-user/{userId}")
+    @GetMapping("/user/{userId}")
     public List<MoodEntryDto> getByUserId(@PathVariable Long userId) {
-        return service.getByUserId(userId)
+        return service.findByUserId(userId)
             .stream()
             .map(mapper::toDto)
             .toList();
-    }
-
-    @GetMapping("/{id}")
-    public MoodEntryDto getById(@PathVariable Long id) {
-
-        return service.getById(id)
-            .map(mapper::toDto)
-            .orElseThrow(() ->
-                new ResourceNotFoundException("Mood not found: " + id));
-    }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public MoodEntryDto create(@RequestBody MoodEntryDto dto) {
-
-        MoodEntry entry = mapper.toEntity(dto);
-
-        MoodEntry saved = service.save(entry, dto);
-
-        return mapper.toDto(saved);
-    }
-
-    @PutMapping("/{id}")
-    public MoodEntryDto update(
-        @PathVariable Long id,
-        @RequestBody MoodEntryDto dto) {
-
-        MoodEntry updated = service.update(id, dto);
-        return mapper.toDto(updated);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-
         service.delete(id);
+    }
+
+    @GetMapping("/complex")
+    public Page<MoodEntryDto> complex(
+        @RequestParam Long userId,
+        @RequestParam String moodName,
+        Pageable pageable
+    ) {
+        return service.findComplex(userId, moodName, pageable)
+            .map(mapper::toDto);
+    }
+
+    @GetMapping("/complex/native")
+    public Page<MoodEntryDto> complexNative(
+        @RequestParam Long userId,
+        @RequestParam String moodName,
+        Pageable pageable
+    ) {
+        return service.findComplexNative(userId, moodName, pageable)
+            .map(mapper::toDto);
     }
 }
