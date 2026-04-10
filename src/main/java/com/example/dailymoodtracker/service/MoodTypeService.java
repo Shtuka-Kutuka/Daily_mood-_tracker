@@ -5,6 +5,7 @@ import com.example.dailymoodtracker.exception.ResourceNotFoundException;
 import com.example.dailymoodtracker.model.MoodType;
 import com.example.dailymoodtracker.repository.MoodTypeRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,13 +15,18 @@ public class MoodTypeService {
     private static final String NOT_FOUND_MESSAGE = "MoodType not found: ";
 
     private final MoodTypeRepository repository;
+    private final MoodEntryService moodEntryService;
 
-    public MoodTypeService(MoodTypeRepository repository) {
+    public MoodTypeService(MoodTypeRepository repository,
+                           MoodEntryService moodEntryService) {
         this.repository = repository;
+        this.moodEntryService = moodEntryService;
     }
 
     public MoodType create(MoodType moodType) {
-        return repository.save(moodType);
+        MoodType saved = repository.save(moodType);
+        moodEntryService.invalidateCache();
+        return saved;
     }
 
     public List<MoodType> getAll() {
@@ -32,21 +38,37 @@ public class MoodTypeService {
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
     }
 
+    @Transactional
     public MoodType update(Long id, MoodTypeDto dto) {
         MoodType moodType = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
 
-        moodType.setName(dto.name());
-        moodType.setEmoji(dto.emoji());
-        moodType.setDescription(dto.description());
+        if (dto.name() != null) {
+            moodType.setName(dto.name());
+        }
 
-        return repository.save(moodType);
+        if (dto.emoji() != null) {
+            moodType.setEmoji(dto.emoji());
+        }
+
+        if (dto.description() != null) {
+            moodType.setDescription(dto.description());
+        }
+
+        MoodType updated = repository.save(moodType);
+
+        moodEntryService.invalidateCache();
+
+        return updated;
     }
 
+    @Transactional
     public void delete(Long id) {
         MoodType moodType = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
 
         repository.delete(moodType);
+
+        moodEntryService.invalidateCache();
     }
 }

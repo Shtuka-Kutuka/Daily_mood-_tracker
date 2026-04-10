@@ -153,6 +153,12 @@ public class MoodEntryService {
         return page;
     }
 
+
+    public void invalidateCache() {
+        cache.clear();
+        LOGGER.debug("Cache cleared (external invalidation)");
+    }
+
     public MoodEntry save(MoodEntry entry, MoodEntryDto dto) {
 
         if (entry.getEntryDate() == null) {

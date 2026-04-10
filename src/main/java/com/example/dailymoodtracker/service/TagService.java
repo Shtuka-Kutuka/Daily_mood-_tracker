@@ -5,6 +5,7 @@ import com.example.dailymoodtracker.exception.ResourceNotFoundException;
 import com.example.dailymoodtracker.model.Tag;
 import com.example.dailymoodtracker.repository.TagRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,13 +15,18 @@ public class TagService {
     private static final String NOT_FOUND_MESSAGE = "Tag not found: ";
 
     private final TagRepository repository;
+    private final MoodEntryService moodEntryService;
 
-    public TagService(TagRepository repository) {
+    public TagService(TagRepository repository,
+                      MoodEntryService moodEntryService) {
         this.repository = repository;
+        this.moodEntryService = moodEntryService;
     }
 
     public Tag create(Tag tag) {
-        return repository.save(tag);
+        Tag saved = repository.save(tag);
+        moodEntryService.invalidateCache();
+        return saved;
     }
 
     public List<Tag> getAll() {
@@ -32,20 +38,33 @@ public class TagService {
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
     }
 
+    @Transactional
     public Tag update(Long id, TagDto dto) {
         Tag tag = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
 
-        tag.setName(dto.name());
-        tag.setColor(dto.color());
+        if (dto.name() != null) {
+            tag.setName(dto.name());
+        }
 
-        return repository.save(tag);
+        if (dto.color() != null) {
+            tag.setColor(dto.color());
+        }
+
+        Tag updated = repository.save(tag);
+
+        moodEntryService.invalidateCache();
+
+        return updated;
     }
 
+    @Transactional
     public void delete(Long id) {
         Tag tag = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(NOT_FOUND_MESSAGE + id));
 
         repository.delete(tag);
+
+        moodEntryService.invalidateCache();
     }
 }
