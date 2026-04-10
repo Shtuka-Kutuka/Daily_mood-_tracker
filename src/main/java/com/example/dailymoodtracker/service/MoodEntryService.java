@@ -137,11 +137,20 @@ public class MoodEntryService {
             userId, moodName, pageable.getPageNumber(), pageable.getPageSize()
         );
 
-        return cache.computeIfAbsent(key, k -> {
-            LOGGER.debug("DB JPQL query executed: userId={}, moodName={}, page={}, size={}",
+        if (cache.containsKey(key)) {
+            LOGGER.debug("CACHE HIT (JPQL): userId={}, moodName={}, page={}, size={}",
                 userId, moodName, pageable.getPageNumber(), pageable.getPageSize());
-            return repository.findComplex(userId, moodName, pageable);
-        });
+            return cache.get(key);
+        }
+
+        LOGGER.debug("CACHE MISS → DB JPQL: userId={}, moodName={}, page={}, size={}",
+            userId, moodName, pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<MoodEntry> page = repository.findComplex(userId, moodName, pageable);
+
+        cache.put(key, page);
+
+        return page;
     }
 
     public MoodEntry save(MoodEntry entry, MoodEntryDto dto) {
