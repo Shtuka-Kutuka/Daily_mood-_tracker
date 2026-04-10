@@ -13,7 +13,6 @@ public interface MoodEntryRepository extends JpaRepository<MoodEntry, Long> {
 
     java.util.List<MoodEntry> findByUserId(Long userId);
 
-    // ✅ JPQL
     @Query(
         value = """
             SELECT DISTINCT m FROM MoodEntry m
@@ -31,7 +30,6 @@ public interface MoodEntryRepository extends JpaRepository<MoodEntry, Long> {
     )
     Page<MoodEntry> findComplex(Long userId, String moodName, Pageable pageable);
 
-    // ✅ FIXED NATIVE
     @Query(
         value = """
             SELECT DISTINCT 

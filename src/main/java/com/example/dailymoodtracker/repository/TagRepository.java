@@ -16,7 +16,6 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     @EntityGraph(attributePaths = {"moodEntries"})
     Optional<Tag> findWithMoodEntriesById(Long id);
 
-    // ✅ ДОГРУЗКА TAGS ДЛЯ NATIVE
     @Query("""
         SELECT me.id, t
         FROM MoodEntry me

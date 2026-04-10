@@ -25,11 +25,9 @@ public class MoodEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 🔥 FK поле для native
     @Column(name = "user_id", insertable = false, updatable = false)
     private Long userId;
 
-    // 🔥 FK поле для native
     @Column(name = "mood_type_id", insertable = false, updatable = false)
     private Long moodTypeId;
 
@@ -60,18 +58,17 @@ public class MoodEntry {
     private Set<Tag> tags;
 
     public MoodEntry() {
+        //Required by JPA
     }
 
     public Long getId() {
         return id;
     }
 
-    // ✅ NEW
     public Long getUserId() {
         return userId;
     }
 
-    // ✅ NEW
     public Long getMoodTypeId() {
         return moodTypeId;
     }

@@ -13,6 +13,9 @@ import com.example.dailymoodtracker.repository.MoodTypeRepository;
 import com.example.dailymoodtracker.repository.TagRepository;
 import com.example.dailymoodtracker.repository.UserRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MoodEntryService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoodEntryService.class);
 
     private final MoodEntryRepository repository;
     private final MoodTypeRepository moodTypeRepo;
@@ -49,26 +54,6 @@ public class MoodEntryService {
         this.tagRepository = tagRepository;
     }
 
-    public List<MoodEntry> findAll() {
-        return repository.findAll();
-    }
-
-    public List<MoodEntry> findByUserId(Long userId) {
-        return repository.findByUserId(userId);
-    }
-
-    public Page<MoodEntry> findComplex(Long userId, String moodName, Pageable pageable) {
-
-        MoodEntryQueryKey key = new MoodEntryQueryKey(
-            userId, moodName, pageable.getPageNumber(), pageable.getPageSize()
-        );
-
-        return cache.computeIfAbsent(key, k -> {
-            System.out.println("DB JPQL JOIN FETCH");
-            return repository.findComplex(userId, moodName, pageable);
-        });
-    }
-
     public Page<MoodEntry> findComplexNative(Long userId, String moodName, Pageable pageable) {
 
         MoodEntryQueryKey key = new MoodEntryQueryKey(
@@ -76,7 +61,9 @@ public class MoodEntryService {
         );
 
         return cache.computeIfAbsent(key, k -> {
-            System.out.println("DB NATIVE");
+
+            LOGGER.debug("DB NATIVE query executed: userId={}, moodName={}, page={}, size={}",
+                userId, moodName, pageable.getPageNumber(), pageable.getPageSize());
 
             Page<MoodEntry> page = repository.findComplexNative(userId, moodName, pageable);
             List<MoodEntry> entries = page.getContent();
@@ -86,11 +73,17 @@ public class MoodEntryService {
             }
 
             Map<Long, User> users = userRepository.findAllById(
-                entries.stream().map(MoodEntry::getUserId).toList()
+                entries.stream()
+                    .map(MoodEntry::getUserId)
+                    .distinct()
+                    .toList()
             ).stream().collect(Collectors.toMap(User::getId, u -> u));
 
             Map<Long, MoodType> moods = moodTypeRepo.findAllById(
-                entries.stream().map(MoodEntry::getMoodTypeId).toList()
+                entries.stream()
+                    .map(MoodEntry::getMoodTypeId)
+                    .distinct()
+                    .toList()
             ).stream().collect(Collectors.toMap(MoodType::getId, m -> m));
 
             Map<Long, Set<Tag>> tagsMap = loadTags(entries);
@@ -107,7 +100,14 @@ public class MoodEntryService {
 
     private Map<Long, Set<Tag>> loadTags(List<MoodEntry> entries) {
 
-        List<Long> ids = entries.stream().map(MoodEntry::getId).toList();
+        List<Long> ids = entries.stream()
+            .map(MoodEntry::getId)
+            .distinct()
+            .toList();
+
+        if (ids.isEmpty()) {
+            return Collections.emptyMap();
+        }
 
         List<Object[]> rows = tagRepository.findTagsByMoodEntryIds(ids);
 
@@ -121,6 +121,27 @@ public class MoodEntryService {
         }
 
         return result;
+    }
+
+    public List<MoodEntry> findAll() {
+        return repository.findAll();
+    }
+
+    public List<MoodEntry> findByUserId(Long userId) {
+        return repository.findByUserId(userId);
+    }
+
+    public Page<MoodEntry> findComplex(Long userId, String moodName, Pageable pageable) {
+
+        MoodEntryQueryKey key = new MoodEntryQueryKey(
+            userId, moodName, pageable.getPageNumber(), pageable.getPageSize()
+        );
+
+        return cache.computeIfAbsent(key, k -> {
+            LOGGER.debug("DB JPQL query executed: userId={}, moodName={}, page={}, size={}",
+                userId, moodName, pageable.getPageNumber(), pageable.getPageSize());
+            return repository.findComplex(userId, moodName, pageable);
+        });
     }
 
     public MoodEntry save(MoodEntry entry, MoodEntryDto dto) {
@@ -152,6 +173,8 @@ public class MoodEntryService {
         }
 
         cache.clear();
+        LOGGER.debug("Cache cleared after SAVE");
+
         return repository.save(entry);
     }
 
@@ -164,6 +187,8 @@ public class MoodEntryService {
         entry.setEntryDate(dto.date());
 
         cache.clear();
+        LOGGER.debug("Cache cleared after UPDATE");
+
         return repository.save(entry);
     }
 
@@ -173,6 +198,8 @@ public class MoodEntryService {
             .orElseThrow(() -> new ResourceNotFoundException("Mood not found: " + id));
 
         repository.delete(entry);
+
         cache.clear();
+        LOGGER.debug("Cache cleared after DELETE");
     }
 }

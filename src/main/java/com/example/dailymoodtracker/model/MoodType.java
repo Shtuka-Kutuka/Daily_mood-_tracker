@@ -30,7 +30,6 @@ public class MoodType {
         this.description = description;
     }
 
-    // ✅ FIX: добавлен getter
     public Long getId() {
         return id;
     }
